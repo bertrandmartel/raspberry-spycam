@@ -1,0 +1,38 @@
+#!/bin/bash
+#title        : video
+#description  : start/stop/restart video
+#########################################
+### install   : cp video /etc/init.d/
+#               update-rc.d video defaults
+### uninstall : update-rc.d -f video remove
+
+PATH_TO_VIDEO=/bin/video.sh
+
+PID_FILE=/tmp/video.pid
+
+case "$1" in
+    start)
+        echo "Starting video service..."
+
+        COMMAND_TO_RUN=`start-stop-daemon -S -b -m -p $PID_FILE -x $PATH_TO_VIDEO& :`
+        setsid sh -c $COMMAND_TO_RUN> /dev/null 2>&1 < /dev/null
+
+        echo -e "\E[31;33m[ OK ]\E[0m"
+        ;;
+    stop)
+        echo "Stopping video service..."
+
+        start-stop-daemon -K -q -p $PID_FILE
+
+        echo -e "\E[31;33m[ OK ]\E[0m"
+        ;;
+    restart|reload)
+        "$0" stop
+        "$0" start
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
